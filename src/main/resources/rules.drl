@@ -1,0 +1,45 @@
+package org.kogito.ddoyle.reproducer;
+
+
+declare SimpleTxn 
+  @role( event )
+  @timestamp( txnTS ) 
+
+  txnTS : int
+  text : String
+end
+
+
+rule "CNC fails"
+when
+  accumulate ($stx: SimpleTxn() from entry-point Transactions;
+    $nrOfTransactions : count($stx),
+    $list: collectList($stx)
+    )
+  if ($nrOfTransactions > 5) do[greater] 
+  if ($nrOfTransactions <= 5) do[less]
+then
+  System.out.println("default");
+then[greater]
+    System.out.println("count");
+then[less]
+    System.out.println("count");
+end
+
+
+rule "CNC works"
+when
+  accumulate ($stx: SimpleTxn() from entry-point Transactions;
+    $nrOfTransactions : count($stx),
+    $list: collectList($stx)
+    )
+  SimpleTxn()
+  if ($nrOfTransactions > 5) do[greater] 
+  if ($nrOfTransactions <= 5) do[less]
+then
+  System.out.println("default");
+then[greater]
+    System.out.println("count");
+then[less]
+    System.out.println("count");
+end
